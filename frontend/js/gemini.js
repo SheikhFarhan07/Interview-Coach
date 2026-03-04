@@ -3,7 +3,7 @@ import { addMessage, addTypingIndicator, removeTypingIndicator,
          setFeedback, setFeedbackLoading } from './ui.js';
 import { speak } from './speech.js';
 
-const GEMINI_URL = (key, model = 'gemini-1.5-flash') =>
+const GEMINI_URL = (key, model = 'gemini-flash-latest') =>
   `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
 
 let conversationHistory = [];
