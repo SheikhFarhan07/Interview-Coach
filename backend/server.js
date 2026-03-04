@@ -72,7 +72,7 @@ async function wsInitSession(clientId, { apiKey, interviewType = 'behavioral', d
     s.genAI  = new GoogleGenerativeAI(apiKey);
     s.config = { interviewType, difficulty };
     const model = s.genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-flash-latest',
       systemInstruction: buildSystemPrompt(interviewType, difficulty),
       generationConfig: { temperature: 0.85, maxOutputTokens: 400 },
     });
@@ -125,7 +125,7 @@ async function wsGenerateFeedback(clientId) {
   const stats = { duration: Math.round((Date.now() - s.startTime) / 60000), questions: s.questionCount };
 
   try {
-    const model = s.genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { temperature: 0.6, maxOutputTokens: 700 } });
+    const model = s.genAI.getGenerativeModel({ model: 'gemini-flash-latest', generationConfig: { temperature: 0.6, maxOutputTokens: 700 } });
     const result = await model.generateContent(buildFeedbackPrompt(transcript, avgEmotions, s.config, stats));
     wsSend(clientId, { type: 'feedback_ready', feedback: result.response.text(), stats });
   } catch (err) {
