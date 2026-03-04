@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Emotion-Aware AI Interview Coach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎯</div>
+      <h1>Emotion<span>Coach</span> AI</h1>
+    </div>
+    <div class="status-bar">
+      <div class="status-pill"><div class="status-dot" id="camStatus"></div><span id="camStatusTxt">Camera Off</span></div>
+      <div class="status-pill"><div class="status-dot" id="micStatus"></div><span id="micStatusTxt">Mic Off</span></div>
+      <div class="status-pill"><div class="status-dot" id="aiStatus"></div><span id="aiStatusTxt">AI Idle</span></div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+
+    <div class="left-col">
+
+      <div class="video-panel">
+        <div class="video-wrapper">
+          <video id="webcam" autoplay muted playsinline></video>
+          <canvas id="faceCanvas"></canvas>
+          <div class="video-overlay">
+            <div class="emotion-badge">
+              <div class="label">DOMINANT EMOTION</div>
+              <div class="value" id="dominantEmotion">—</div>
+            </div>
+            <div class="rec-badge" id="recBadge" style="display:none">
+              <div class="rec-dot"></div>LIVE
+            </div>
+          </div>
+        </div>
+        <div class="emotion-bars" id="emotionBars"></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-primary" id="startBtn">▶ Start Session</button>
+        <button class="btn btn-danger"  id="stopBtn"  disabled>■ End Session</button>
+        <button class="btn btn-outline" id="feedbackBtn" disabled>📊 Get Feedback</button>
+        <div class="mic-indicator">
+          <div class="mic-bars" id="micBars">
+            <div class="mic-bar" style="height:6px"></div>
+            <div class="mic-bar" style="height:10px"></div>
+            <div class="mic-bar" style="height:14px"></div>
+            <div class="mic-bar" style="height:10px"></div>
+            <div class="mic-bar" style="height:6px"></div>
+          </div>
+          <span id="micLabel">MIC</span>
+        </div>
+      </div>
+
+      <div class="transcript-panel">
+        <div class="panel-header">
+          <span class="panel-title">Live Transcript</span>
+          <button class="btn btn-outline" style="padding:5px 12px;font-size:0.75rem" id="clearTranscriptBtn">Clear</button>
+        </div>
+        <div id="transcript">
+          <div class="transcript-system">Configure your API key and press Start Session.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-col">
+
+      <div class="config-panel">
+        <div class="panel-title" style="margin-bottom:14px">Configuration</div>
+        <div class="config-row">
+          <div class="config-label">Gemini API Key</div>
+          <input type="password" class="config-input" id="apiKey" placeholder="AIza..." />
+        </div>
+        <div class="config-row">
+          <div class="config-label">Interview Type</div>
+          <select class="config-select" id="interviewType">
+            <option value="technical">Technical (SWE)</option>
+            <option value="behavioral">Behavioral (STAR)</option>
+            <option value="product">Product Manager</option>
+            <option value="system_design">System Design</option>
+            <option value="hr">HR / Culture Fit</option>
+          </select>
+        </div>
+        <div class="config-row">
+          <div class="config-label">Difficulty</div>
+          <select class="config-select" id="difficulty">
+            <option value="junior">Junior</option>
+            <option value="mid">Mid-Level</option>
+            <option value="senior" selected>Senior</option>
+            <option value="staff">Staff / Lead</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="chat-panel">
+        <div class="panel-header">
+          <span class="panel-title">AI Interviewer</span>
+          <span id="questionCount" class="q-counter">Q: 0</span>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg msg-system">Enter your API key and click Start Session to begin.</div>
+        </div>
+      </div>
+
+      <div class="metrics-panel">
+        <div class="panel-title" style="margin-bottom:14px">Performance Metrics</div>
+        <div class="metric-row"><span class="metric-name">Confidence</span><span class="metric-val" id="confVal" style="color:var(--accent)">0%</span></div>
+        <div class="metric-track"><div class="metric-fill" id="confBar" style="width:0%;background:var(--accent)"></div></div>
+        <div class="metric-row"><span class="metric-name">Stress Level</span><span class="metric-val" id="stressVal" style="color:var(--warn)">0%</span></div>
+        <div class="metric-track"><div class="metric-fill" id="stressBar" style="width:0%;background:var(--warn)"></div></div>
+        <div class="metric-row"><span class="metric-name">Engagement</span><span class="metric-val" id="engageVal" style="color:var(--accent2)">0%</span></div>
+        <div class="metric-track"><div class="metric-fill" id="engageBar" style="width:0%;background:var(--accent2)"></div></div>
+        <div class="metric-row" style="margin-bottom:0"><span class="metric-name">Speech Pace</span><span class="metric-val" id="paceVal" style="color:#f6c90e">—</span></div>
+      </div>
+
+      <div class="feedback-panel">
+        <div class="panel-header"><span class="panel-title">AI Feedback</span></div>
+        <div id="feedbackContent">
+          <div class="feedback-placeholder">Feedback appears here after session or when requested.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script type="module" src="js/ui.js"></script>
+<script type="module" src="js/emotion.js"></script>
+<script type="module" src="js/speech.js"></script>
+<script type="module" src="js/gemini.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
